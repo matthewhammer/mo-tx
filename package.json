@@ -4,6 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
+    "start": "mo-dev --deploy -y",
     "format": "prettier --write \"src/**/*.{json,mo}\"",
     "sources": "mops sources",
     "prepare": "husky install",
@@ -14,6 +15,7 @@
     "husky": "^8.0.3",
     "ic-mops": "^0.17.2",
     "lint-staged": "^13.2.3",
+    "mo-dev": "^0.10.1",
     "prettier": "^2.8.8",
     "prettier-plugin-motoko": "^0.6.1"
   },
