@@ -19,7 +19,7 @@
   },
   "lint-staged": {
     "src/**/*.{mo}": [
-      "npm run format"
+      "prettier --write"
     ]
   }
 }
