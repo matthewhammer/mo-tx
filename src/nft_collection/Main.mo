@@ -11,7 +11,7 @@ shared ({ caller = installer }) actor class () {
     { hash = Text.hash id; key = #NftId id };
   };
 
-  func find(id : NftId) : ?Principal {
+  func findOwner(id : NftId) : ?Principal {
     Trie.find(ownerMap, key(id), idEq);
   };
 
@@ -21,7 +21,7 @@ shared ({ caller = installer }) actor class () {
 
   public shared ({ caller }) func create(id : NftId, newOwner : Principal) : async Bool {
     if (caller == installer) {
-      if (find(id) == null) {
+      if (findOwner(id) == null) {
         setOwner(id, newOwner);
         true;
       } else false;
@@ -29,7 +29,7 @@ shared ({ caller = installer }) actor class () {
   };
 
   public shared ({ caller }) func send(id : NftId, newOwner : Principal) : async Bool {
-    if (find(id) == ?caller) {
+    if (findOwner(id) == ?caller) {
       setOwner(id, newOwner);
       true;
     } else {
@@ -37,8 +37,8 @@ shared ({ caller = installer }) actor class () {
     };
   };
 
-    public shared query func getOwner(id : NftId) : async ?Principal {
-        find(id)
-    };
+  public shared query func getOwner(id : NftId) : async ?Principal {
+    findOwner(id)
+  };
 
 };
