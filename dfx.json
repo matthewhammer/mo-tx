@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "apes": {
+      "type": "motoko",
+      "main": "src/nft_collection/Main.mo"
+    },
+    "baboons": {
+      "type": "motoko",
+      "main": "src/nft_collection/Main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "mops sources"
+    }
+  }
+}
