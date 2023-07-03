@@ -41,9 +41,4 @@ shared ({ caller = installer }) actor class () {
     findOwner(id);
   };
 
-  public func f()
-
-  {
-
-  };
 };
