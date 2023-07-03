@@ -38,14 +38,12 @@ shared ({ caller = installer }) actor class () {
   };
 
   public shared query func getOwner(id : NftId) : async ?Principal {
-    findOwner(id)
+    findOwner(id);
   };
 
-          public func f ()
+  public func f()
 
+  {
 
-                     {
-
-
-                     };
+  };
 };
