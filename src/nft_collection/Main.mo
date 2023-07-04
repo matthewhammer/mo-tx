@@ -7,8 +7,8 @@ shared ({ caller = installer }) actor class () {
   stable var ownerMap : Trie.Trie<NftId, Principal> = Trie.empty();
   let idEq = func(a : NftId, b : NftId) : Bool { a == b };
 
-  func key((#NftId id) : NftId) : Trie.Key<NftId> {
-    { hash = Text.hash id; key = #NftId id };
+  func key((#nft id) : NftId) : Trie.Key<NftId> {
+    { hash = Text.hash id; key = #nft id };
   };
 
   func findOwner(id : NftId) : ?Principal {
