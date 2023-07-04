@@ -28,13 +28,23 @@ shared ({ caller = installer }) actor class () {
     } else false;
   };
 
-  public shared ({ caller }) func send(id : NftId, newOwner : Principal) : async Bool {
+  func send_(caller : Principal, id : NftId, newOwner : Principal) : Bool {
     if (findOwner(id) == ?caller) {
       setOwner(id, newOwner);
       true;
     } else {
       false;
     };
+  };
+
+  public shared ({ caller }) func send(id : NftId, newOwner : Principal) : async Bool {
+    send_(caller, id, newOwner);
+  };
+
+  public shared ({ caller }) func adminSend(id : NftId, newOwner : Principal) : async Bool {
+    if (caller == installer) {
+      send_(caller, id, newOwner);
+    } else false;
   };
 
   public shared query func getOwner(id : NftId) : async ?Principal {
