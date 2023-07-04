@@ -8,6 +8,10 @@
       "type": "motoko",
       "main": "src/nft_collection/Main.mo"
     }
+    "swapper": {
+      "type": "motoko",
+      "main": "src/nft_swapper/Main.mo"
+    }
   },
   "defaults": {
     "build": {
