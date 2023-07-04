@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "mo-dev --deploy -y",
+    "test": "mo-test",
     "format": "prettier --write \"src/**/*.{json,mo}\"",
     "sources": "mops sources",
     "prepare": "husky install",
