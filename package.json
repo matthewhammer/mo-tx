@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "start": "mo-dev --deploy -y",
+    "start": "mo-dev --test --deploy -y",
     "test": "mo-test",
     "format": "prettier --write \"src/**/*.{json,mo}\"",
     "sources": "mops sources",
