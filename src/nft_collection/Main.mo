@@ -4,6 +4,9 @@ import Types "Types";
 import Debug "mo:base/Debug";
 
 shared ({ caller = installer }) actor class NftCollection() {
+  // Type-check our actor against the interface.
+  func _hasCorrectInterface(x : NftCollection) : Types.NftCollection = x;
+
   public type NftId = Types.NftId;
   stable var ownerMap : Trie.Trie<NftId, Principal> = Trie.empty();
   let idEq = func(a : NftId, b : NftId) : Bool { a == b };
