@@ -2,7 +2,7 @@ import Trie "mo:base/Trie";
 import Text "mo:base/Text";
 import Types "Types";
 
-shared ({ caller = installer }) actor class () {
+shared ({ caller = installer }) actor class NftCollection() {
   public type NftId = Types.NftId;
   stable var ownerMap : Trie.Trie<NftId, Principal> = Trie.empty();
   let idEq = func(a : NftId, b : NftId) : Bool { a == b };
