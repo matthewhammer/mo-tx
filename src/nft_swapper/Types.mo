@@ -91,7 +91,7 @@ module {
     };
 
     // 5. Completed plan.
-    // 5 --> 6 requires that each swap in plan is processed
+    // 4 --> 5 requires that each swap in plan is processed
     // by its respective NFT collection canister.
     public type Complete = {
       plan : Plan;
