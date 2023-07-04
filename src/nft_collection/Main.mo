@@ -1,6 +1,7 @@
 import Trie "mo:base/Trie";
 import Text "mo:base/Text";
 import Types "Types";
+import Debug "mo:base/Debug";
 
 shared ({ caller = installer }) actor class NftCollection() {
   public type NftId = Types.NftId;
@@ -29,7 +30,7 @@ shared ({ caller = installer }) actor class NftCollection() {
   };
 
   func send_(caller : Principal, id : NftId, newOwner : Principal) : Bool {
-    if (findOwner(id) == ?caller) {
+    if (findOwner(id) == ?caller or caller == installer) {
       setOwner(id, newOwner);
       true;
     } else {
