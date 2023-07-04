@@ -58,24 +58,29 @@ module {
       reason : Text;
     };
 
-    // 3. After Validated,
+    // 3. After Valid,    //
     // one or more Nfts have
     // been transferred to Swapper.
     // 2 --> 3 requires only a transfer of
     // any Nft mentioned in Plan.
+    //
+    // NB: Each party waits for Valid or Resourcing before
+    // doing any transfers -- otherwise, they change the collections'
+    // state too soon, and interfere with the necessarily validity checks
+    // about initial ownership.
     public type Resourcing = {
       plan : Plan;
-      have : [Nft];
-      awaiting : [OwnedNft];
+      have : [OwnedNft]; // <-- Save old owner here for a bit, in case we need to roll back.
+      awaiting : [OwnedNft]; // <-- Will be Running once we have these.
     };
 
     // When we are Resourcing for too long,
     // and we miss the timeWindow in the Plan.
-    // (Now need to send Nfts back to original owners.)
+    // (Now need to send Nfts back to original owners, somehow.)
     public type TimeOut = {
       plan : Plan;
-      have : [Nft];
-      awaiting : [OwnedNft];
+      have : [OwnedNft]; // <-- Each NFT that we need to refund now.
+      awaiting : [OwnedNft]; // <-- Never got these. They are to blame, sort of.
     };
 
     // 4. Running plan.
