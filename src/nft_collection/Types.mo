@@ -1,3 +1,3 @@
 module {
-  public type NftId = { #NftId : Text };
+  public type NftId = { #nft : Text };
 };
