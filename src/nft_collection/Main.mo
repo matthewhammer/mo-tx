@@ -41,7 +41,7 @@ shared ({ caller = installer }) actor class () {
     send_(caller, id, newOwner);
   };
 
-  public shared ({ caller }) func adminSend(id : NftId, newOwner : Principal) : async Bool {
+  public shared ({ caller }) func installerSend(id : NftId, newOwner : Principal) : async Bool {
     if (caller == installer) {
       send_(caller, id, newOwner);
     } else false;
