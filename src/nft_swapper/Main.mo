@@ -1,6 +1,21 @@
+import NftTypes "../nft_collection/Types";
 import Types "Types";
+import Core "Core";
+import State "State";
 
-actor class () {
+// Using optional arg type lets dfx / motoko dev server do deploy without any args.
+actor class NftSwapper(collections : ?[NftTypes.NftCollection]) {
+
+  stable var state = State.empty();
+
+  let core = Core.Core(state);
+
+  type Plan = Types.Plan;
+
+  public shared ({ caller }) func submitPlan(plan : Plan) : async Bool {
+    core.submitPlan(caller, plan);
+  };
+
   // to do:
   //
   // stable var map from PlanId to Plan.

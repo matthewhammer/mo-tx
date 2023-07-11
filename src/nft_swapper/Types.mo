@@ -30,7 +30,7 @@ module {
 
   // States of a "flow" through
   // the Swapper multi-canister protocol.
-  public module State {
+  public module PlanState {
     // 1. One or more parties
     // have submitted a plan.
     public type Submit = {
@@ -97,7 +97,7 @@ module {
       plan : Plan;
     };
 
-    public type State = {
+    public type PlanState = {
       #submit : Submit;
       #invalid : Invalid;
       #valid : Valid;
