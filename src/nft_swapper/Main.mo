@@ -4,11 +4,11 @@ import Core "Core";
 import State "State";
 
 // Using optional arg type lets dfx / motoko dev server do deploy without any args.
-actor class NftSwapper(collections : ?[NftTypes.NftCollection]) {
+shared ({ caller = installer }) actor class NftSwapper() {
 
-  stable var state = State.empty();
+  stable var state = State.init(installer);
 
-  let core = Core.Core(state);
+  let core = Core.Core(installer, state);
 
   type Plan = Types.Plan;
 

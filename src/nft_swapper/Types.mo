@@ -1,4 +1,6 @@
 import NCTypes "../nft_collection/Types";
+import Blob "mo:base/Blob";
+import Trie "mo:base/Trie";
 
 module {
 
@@ -24,8 +26,23 @@ module {
   // A plan is a sequence of two-way swaps.
   // It is valid if run as a sequence, it is valid.
   public type Plan = {
-    timeWindow : (Int, Int);
     swap2Reqs : [Swap2Req];
+  };
+
+  public func planKey(p : Plan) : Trie.Key<Plan> {
+    {
+      hash = planHash(p);
+      key = p;
+    };
+  };
+
+  public func planHash(p : Plan) : Nat32 {
+    // Blob.hash(to_candid(p))
+    0 // Using a constant hash function to overcome moc interpreter missing to_candid.
+  };
+
+  public func planEq(p1 : Plan, p2 : Plan) : Bool {
+    p1 == p2;
   };
 
   // States of a "flow" through
@@ -74,10 +91,9 @@ module {
       awaiting : [OwnedNft]; // <-- Will be Running once we have these.
     };
 
-    // When we are Resourcing for too long,
-    // and we miss the timeWindow in the Plan.
+    //
     // (Now need to send Nfts back to original owners, somehow.)
-    public type TimeOut = {
+    public type Cancelled = {
       plan : Plan;
       have : [OwnedNft]; // <-- Each NFT that we need to refund now.
       awaiting : [OwnedNft]; // <-- Never got these. They are to blame, sort of.
@@ -102,7 +118,7 @@ module {
       #invalid : Invalid;
       #valid : Valid;
       #resourcing : Resourcing;
-      #timeOut : TimeOut;
+      #cancelled : Cancelled;
       #running : Running;
       #complete : Complete;
     }
