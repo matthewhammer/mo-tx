@@ -15,18 +15,16 @@ module {
     nft : Nft;
   };
 
-  // Two-way swap.
-  // Only valid if ownership claims
-  // are valid when activated.
-  public type Swap2Req = {
-    ownedNft1 : OwnedNft;
-    ownedNft2 : OwnedNft;
+  public type Send = {
+    source : Principal;
+    target : Principal;
+    nft : Nft;
   };
 
   // A plan is a sequence of two-way swaps.
   // It is valid if run as a sequence, it is valid.
   public type Plan = {
-    swap2Reqs : [Swap2Req];
+    sends : [Send];
   };
 
   public func planKey(p : Plan) : Trie.Key<Plan> {
@@ -94,7 +92,7 @@ module {
     // (Now need to send Nfts back to original owners, somehow.)
     public type Cancelled = {
       plan : Plan;
-      have : [OwnedNft]; // <-- Each NFT that we need to refund now.
+      by : Principal;
     };
 
     // 4. Running plan.
@@ -102,6 +100,7 @@ module {
     // in plan are transferred to Swapper.
     public type Running = {
       plan : Plan;
+      // to do -- list completed swaps thus far here.
     };
 
     // 5. Completed plan.
