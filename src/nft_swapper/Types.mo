@@ -88,7 +88,6 @@ module {
     public type Resourcing = {
       plan : Plan;
       have : [OwnedNft]; // <-- Save old owner here for a bit, in case we need to roll back.
-      awaiting : [OwnedNft]; // <-- Will be Running once we have these.
     };
 
     //
@@ -96,7 +95,6 @@ module {
     public type Cancelled = {
       plan : Plan;
       have : [OwnedNft]; // <-- Each NFT that we need to refund now.
-      awaiting : [OwnedNft]; // <-- Never got these. They are to blame, sort of.
     };
 
     // 4. Running plan.

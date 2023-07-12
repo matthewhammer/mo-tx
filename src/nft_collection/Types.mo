@@ -6,5 +6,5 @@ module {
     getOwner : query NftId -> async ?Principal;
   };
 
-  public type Nft = { id : NftId; collection : NftCollection };
+  public type Nft = { id : NftId; collection : Principal };
 };
