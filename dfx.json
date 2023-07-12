@@ -1,4 +1,5 @@
 {
+  "dfx": "0.14.1",
   "canisters": {
     "apes": {
       "type": "motoko",
@@ -7,6 +8,10 @@
     "baboons": {
       "type": "motoko",
       "main": "src/nft_collection/Main.mo"
+    },
+    "swapper": {
+      "type": "motoko",
+      "main": "src/nft_swapper/Main.mo"
     }
   },
   "defaults": {
