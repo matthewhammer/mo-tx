@@ -43,7 +43,7 @@ module {
     };
 
     public func getPlan(plan : Plan) : ?PlanStates {
-      null;
+      Trie.get<Plan, PlanStates>(state.plans, Types.planKey(plan), Types.planEq);
     };
 
     // to do -- generalize -- see Core (addParty).
