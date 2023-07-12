@@ -24,21 +24,21 @@ let n3 = { id = #nft "baboon31"; collection = Principal.fromActor(c2) };
 let on2 = { owner = bob; nft = n2 };
 let on3 = { owner = bob; nft = n3 };
 
-
 let swapper = NftSwapper.Core(installer, State.init(installer));
 
 let thePlan = {
-    sends = [{
-        source = alice;
-        nft = n1;
-        target = bob;
-             },
+  sends = [
     {
-        source = bob;
-        nft = n2;
-        target = alice;
-    }
-    ];
+      source = alice;
+      nft = n1;
+      target = bob;
+    },
+    {
+      source = bob;
+      nft = n2;
+      target = alice;
+    },
+  ];
 };
 
 // send resources to plan (via swapper)
