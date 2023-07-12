@@ -22,32 +22,32 @@ let on1 = { owner = alice; nft = n1 };
 let n2 = { id = #nft "baboon13"; collection = Principal.fromActor(c2) };
 let on2 = { owner = bob; nft = n2 };
 
-
 let swapper = NftSwapper.Core(installer, State.init(installer));
 
 let thePlan = {
-    swap2Reqs = [{
-        ownedNft1 = on1;
-        ownedNft2 = on2;
-                 }];
+  swap2Reqs = [{
+    ownedNft1 = on1;
+    ownedNft2 = on2;
+  }];
 };
 
 assert swapper.submitPlan(alice, thePlan);
 assert swapper.submitPlan(bob, thePlan); // now plan is "resourcing"
 
-
 // send resources to plan (via swapper)
 
-let alicesPart = async { // Alice does this stuff:
-    assert (await c1.installerSend(#nft "ape42", swapperPrincipal)); // to do -- alice sends.
-    D.print (debug_show swapper.getPlan(alice, thePlan));
-    assert (await swapper.notifyPlan(alice, thePlan, on1));    
+let alicesPart = async {
+  // Alice does this stuff:
+  assert (await c1.installerSend(#nft "ape42", swapperPrincipal)); // to do -- alice sends.
+  D.print(debug_show swapper.getPlan(alice, thePlan));
+  assert (await swapper.notifyPlan(alice, thePlan, on1));
 };
 
-let bobsPart = async { // Bob does this stuff:
-    assert (await c2.installerSend(#nft "baboon13", swapperPrincipal)); // to do -- bob sends.
-    D.print (debug_show swapper.getPlan(bob, thePlan));
-    assert (await swapper.notifyPlan(bob, thePlan, on2)); // plan executes here (assuming this happens after Alice).
+let bobsPart = async {
+  // Bob does this stuff:
+  assert (await c2.installerSend(#nft "baboon13", swapperPrincipal)); // to do -- bob sends.
+  D.print(debug_show swapper.getPlan(bob, thePlan));
+  assert (await swapper.notifyPlan(bob, thePlan, on2)); // plan executes here (assuming this happens after Alice).
 };
 
 await alicesPart;
