@@ -94,7 +94,12 @@ module {
       #invalid : Invalid;
       #cancelled : Cancelled;
       #complete : Complete;
-    }
+    };
+
+    public type PlanStates = {
+      past : [PlanState];
+      current : PlanState;
+    };
 
   };
 };

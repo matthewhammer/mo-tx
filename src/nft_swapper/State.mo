@@ -7,11 +7,7 @@ import Array "mo:base/Array";
 module {
   public type Plan = Types.Plan;
   public type PlanState = Types.PlanState.PlanState;
-
-  public type PlanStates = {
-    past : [PlanState];
-    current : PlanState;
-  };
+  public type PlanStates = Types.PlanState.PlanStates;
 
   public type State = {
     installer : Principal;
