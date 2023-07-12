@@ -5,7 +5,7 @@ import NftSwapper "../src/nft_swapper/Core";
 import NftSwapperTypes "../src/nft_swapper/Types";
 import D "mo:base/Debug";
 
-type PlanStates = NftSwapperTypes.PlanState.PlanStates;
+let planIsBeingSubmitted = NftSwapperTypes.PlanState.planIsBeingSubmitted;
 
 let alice = Principal.fromText("rkp4c-7iaaa-aaaaa-aaaca-cai");
 let bob = Principal.fromText("renrk-eyaaa-aaaaa-aaada-cai");
@@ -45,18 +45,6 @@ let thePlan = {
 };
 
 // send resources to plan (via swapper)
-
-func planIsBeingSubmitted(ps : ?PlanStates) : Bool {
-  switch (ps) {
-    case null true;
-    case (?ps) {
-      switch (ps.current) {
-        case (#submit(_)) { true };
-        case _ { false };
-      };
-    };
-  };
-};
 
 let alicesPart = async {
   // Alice does this stuff:

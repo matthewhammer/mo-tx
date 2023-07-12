@@ -101,5 +101,17 @@ module {
       current : PlanState;
     };
 
+    public func planIsBeingSubmitted(ps : ?PlanStates) : Bool {
+      switch (ps) {
+        case null true;
+        case (?ps) {
+          switch (ps.current) {
+            case (#submit(_)) { true };
+            case _ { false };
+          };
+        };
+      };
+    };
+
   };
 };
