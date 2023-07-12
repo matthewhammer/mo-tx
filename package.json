@@ -6,7 +6,7 @@
   "scripts": {
     "start": "mo-dev --test --deploy -y",
     "test": "mo-test",
-    "format": "prettier --write \"src/**/*.{json,mo}\"",
+    "format": "prettier --write \"{src,test}/**/*.{json,mo}\"",
     "sources": "mops sources",
     "prepare": "husky install",
     "precommit": "lint-staged",
