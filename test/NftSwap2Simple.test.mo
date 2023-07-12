@@ -20,15 +20,25 @@ let n1 = { id = #nft "ape42"; collection = Principal.fromActor(c1) };
 let on1 = { owner = alice; nft = n1 };
 
 let n2 = { id = #nft "baboon13"; collection = Principal.fromActor(c2) };
+let n3 = { id = #nft "baboon31"; collection = Principal.fromActor(c2) };
 let on2 = { owner = bob; nft = n2 };
+let on3 = { owner = bob; nft = n3 };
 
 let swapper = NftSwapper.Core(installer, State.init(installer));
 
 let thePlan = {
-  swap2Reqs = [{
-    ownedNft1 = on1;
-    ownedNft2 = on2;
-  }];
+  sends = [
+    {
+      source = alice;
+      nft = n1;
+      target = bob;
+    },
+    {
+      source = bob;
+      nft = n2;
+      target = alice;
+    },
+  ];
 };
 
 assert swapper.submitPlan(alice, thePlan);

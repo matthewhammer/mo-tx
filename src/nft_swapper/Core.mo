@@ -69,13 +69,9 @@ module {
                 if (newNfts.size() == 2 /* to do */) {
                   state.putPlan(plan, #running { plan });
                   do {
-                    for (swap in plan.swap2Reqs.vals()) {
-                      let { owner = o1; nft = { id = i1; collection = c1 } } = swap.ownedNft1;
-                      let { owner = o2; nft = { id = i2; collection = c2 } } = swap.ownedNft2;
-                      let a1 = collectionActor(c1).send(i1, o2);
-                      let a2 = collectionActor(c2).send(i2, o1);
-                      assert (await a1);
-                      assert (await a2);
+                    for (send in plan.sends.vals()) {
+                      let a = collectionActor(send.nft.collection).send(send.nft.id, send.target);
+                      assert (await a);
                     };
                   };
                   state.putPlan(plan, #complete { plan });
