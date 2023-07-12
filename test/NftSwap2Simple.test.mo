@@ -41,13 +41,11 @@ let thePlan = {
     ];
 };
 
-assert swapper.submitPlan(alice, thePlan);
-assert swapper.submitPlan(bob, thePlan); // now plan is "resourcing"
-
-
 // send resources to plan (via swapper)
 
 let alicesPart = async { // Alice does this stuff:
+    assert swapper.submitPlan(alice, thePlan);
+    // to do -- wait until plan is resourcing.
     assert (await c1.installerSend(#nft "ape42", swapperPrincipal)); // to do -- alice sends.
     D.print (debug_show swapper.getPlan(alice, thePlan));
     assert (await swapper.notifyPlan(alice, thePlan, on1));    
@@ -55,6 +53,8 @@ let alicesPart = async { // Alice does this stuff:
 
 let bobsPart = async { // Bob does this stuff:
     assert (await c2.installerSend(#nft "baboon13", swapperPrincipal)); // to do -- bob sends.
+    // to do -- wait until plan is resourcing.
+    assert swapper.submitPlan(bob, thePlan);
     D.print (debug_show swapper.getPlan(bob, thePlan));
     assert (await swapper.notifyPlan(bob, thePlan, on2)); // plan executes here (assuming this happens after Alice).
 };
