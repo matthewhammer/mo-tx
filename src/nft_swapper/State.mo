@@ -32,10 +32,10 @@ module {
           };
           state.plans := Trie.put<Plan, PlanStates>(state.plans, Types.planKey(plan), Types.planEq, s).0;
         };
-        case (?planState) {
+        case (?planStates) {
           let s = {
             current = newState;
-            past = addState(planState.past, planState.current);
+            past = addState(planStates.past, planStates.current);
           };
           state.plans := Trie.put<Plan, PlanStates>(state.plans, Types.planKey(plan), Types.planEq, s).0;
         };
@@ -50,7 +50,7 @@ module {
     func addState(states : [PlanState], state : PlanState) : [PlanState] {
       let size = states.size();
       Array.tabulate<PlanState>(
-        size,
+        size + 1,
         func i {
           if (i < size) {
             states[i];

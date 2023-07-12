@@ -107,7 +107,7 @@ module {
     func arrayAdd<X>(a : [X], x : X) : [X] {
       let size = a.size();
       Array.tabulate<X>(
-        size,
+        size + 1,
         func i {
           if (i < size) {
             a[i];

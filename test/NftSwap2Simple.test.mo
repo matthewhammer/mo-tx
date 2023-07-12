@@ -35,6 +35,7 @@ let thePlan = {
 assert swapper.submitPlan(alice, thePlan);
 assert swapper.submitPlan(bob, thePlan); // now plan is "resourcing"
 
+
 // send resources to plan (via swapper)
 
 let alicesPart = async { // Alice does this stuff:
