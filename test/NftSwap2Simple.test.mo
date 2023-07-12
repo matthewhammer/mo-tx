@@ -62,7 +62,7 @@ let bobsPart = async {
   // Bob does this stuff:
   assert swapper.submitPlan(bob, thePlan);
   // wait until plan is resourcing.
-  while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
+  while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
     await async {};
   };
   assert (await c2.installerSend(#nft "baboon13", swapperPrincipal)); // to do -- bob sends.
