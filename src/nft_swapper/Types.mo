@@ -113,5 +113,17 @@ module {
       };
     };
 
+    public func planIsResourcing(ps : ?PlanStates) : Bool {
+      switch (ps) {
+        case null false;
+        case (?ps) {
+          switch (ps.current) {
+            case (#resourcing(_)) { true };
+            case _ { false };
+          };
+        };
+      };
+    };
+
   };
 };
