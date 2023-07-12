@@ -2,6 +2,7 @@ import NftTypes "../nft_collection/Types";
 import Types "Types";
 import State "State";
 import Array "mo:base/Array";
+import Principal "mo:base/Principal";
 
 module {
   public type OwnedNft = Types.OwnedNft;
@@ -92,8 +93,7 @@ module {
     };
 
     func collectionActor(p : Principal) : NftCollection {
-      assert false;
-      loop {};
+      actor (Principal.toText(p));
     };
 
     func addParty(parties : [Principal], party : Principal) : [Principal] {
