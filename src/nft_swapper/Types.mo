@@ -94,7 +94,36 @@ module {
       #invalid : Invalid;
       #cancelled : Cancelled;
       #complete : Complete;
-    }
+    };
+
+    public type PlanStates = {
+      past : [PlanState];
+      current : PlanState;
+    };
+
+    public func planIsBeingSubmitted(ps : ?PlanStates) : Bool {
+      switch (ps) {
+        case null true;
+        case (?ps) {
+          switch (ps.current) {
+            case (#submit(_)) { true };
+            case _ { false };
+          };
+        };
+      };
+    };
+
+    public func planIsResourcing(ps : ?PlanStates) : Bool {
+      switch (ps) {
+        case null false;
+        case (?ps) {
+          switch (ps.current) {
+            case (#resourcing(_)) { true };
+            case _ { false };
+          };
+        };
+      };
+    };
 
   };
 };

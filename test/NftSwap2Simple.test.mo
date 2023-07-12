@@ -2,7 +2,11 @@ import Principal "mo:base/Principal";
 import State "../src/nft_swapper/State";
 import { NftCollection } "../src/nft_collection/Main";
 import NftSwapper "../src/nft_swapper/Core";
+import NftSwapperTypes "../src/nft_swapper/Types";
 import D "mo:base/Debug";
+
+let planIsBeingSubmitted = NftSwapperTypes.PlanState.planIsBeingSubmitted;
+let planIsResourcing = NftSwapperTypes.PlanState.planIsResourcing;
 
 let alice = Principal.fromText("rkp4c-7iaaa-aaaaa-aaaca-cai");
 let bob = Principal.fromText("renrk-eyaaa-aaaaa-aaada-cai");
@@ -41,13 +45,19 @@ let thePlan = {
   ];
 };
 
-assert swapper.submitPlan(alice, thePlan);
-assert swapper.submitPlan(bob, thePlan); // now plan is "resourcing"
-
 // send resources to plan (via swapper)
 
 let alicesPart = async {
   // Alice does this stuff:
+  assert swapper.submitPlan(alice, thePlan);
+
+  // wait until plan is resourcing.
+  while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
+    // To do -- Tell Alice things as we wait.
+    await async {}; // NB: Need this, to yeild control to other block, below.
+  };
+  if (not planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
+
   assert (await c1.installerSend(#nft "ape42", swapperPrincipal)); // to do -- alice sends.
   D.print(debug_show swapper.getPlan(alice, thePlan));
   assert (await swapper.notifyPlan(alice, thePlan, on1));
@@ -55,6 +65,15 @@ let alicesPart = async {
 
 let bobsPart = async {
   // Bob does this stuff:
+  assert swapper.submitPlan(bob, thePlan);
+
+  // wait until plan is resourcing.
+  while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
+    // To do -- Tell Bob things as we wait.
+    await async {};
+  };
+  if (not planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
+
   assert (await c2.installerSend(#nft "baboon13", swapperPrincipal)); // to do -- bob sends.
   D.print(debug_show swapper.getPlan(bob, thePlan));
   assert (await swapper.notifyPlan(bob, thePlan, on2)); // plan executes here (assuming this happens after Alice).
