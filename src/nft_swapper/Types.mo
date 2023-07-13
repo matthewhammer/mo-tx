@@ -1,3 +1,4 @@
+import ArraySet "../common/ArraySet";
 import NCTypes "../nft_collection/Types";
 import Blob "mo:base/Blob";
 import Trie "mo:base/Trie";
@@ -41,6 +42,13 @@ module {
 
   public func planEq(p1 : Plan, p2 : Plan) : Bool {
     p1 == p2;
+  };
+
+  public func ownedNftSet(ns : [OwnedNft]) : ArraySet.ArraySet<OwnedNft> {
+    ArraySet.ArraySet(
+      ns,
+      func(n1 : OwnedNft, n2 : OwnedNft) : Bool { n1 == n2 },
+    );
   };
 
   // States of a "flow" through
@@ -99,6 +107,30 @@ module {
     public type PlanStates = {
       past : [PlanState];
       current : PlanState;
+    };
+
+    public func planParties(plan : Plan) : [Principal] {
+      var parties = ArraySet.principalSet([]);
+      for (send in plan.sends.vals()) {
+        if (not (parties.has(send.source))) {
+          parties := ArraySet.principalSet(parties.add(send.source));
+        };
+        if (not (parties.has(send.target))) {
+          parties := ArraySet.principalSet(parties.add(send.source));
+        };
+      };
+      parties.array();
+    };
+
+    public func planOwnedNfts(plan : Plan) : [OwnedNft] {
+      var nfts = ownedNftSet([]);
+      for (send in plan.sends.vals()) {
+        let n = { owner = send.source; nft = send.nft };
+        if (not (nfts.has(n))) {
+          nfts := ownedNftSet(nfts.add(n));
+        };
+      };
+      nfts.array();
     };
 
     public func planIsBeingSubmitted(ps : ?PlanStates) : Bool {

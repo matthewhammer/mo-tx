@@ -8,7 +8,7 @@ module {
   public class ArraySet<X>(elements : [X], eq : (X, X) -> Bool) {
     public func array() : [X] { elements };
 
-    public func isMember(x : X) : Bool {
+    public func has(x : X) : Bool {
       Option.isSome(Array.find<X>(elements, func(y : X) : Bool { eq(x, y) }));
     };
 
@@ -27,6 +27,18 @@ module {
           };
         },
       );
+    };
+
+    // Order does not matter.
+    public func equals(ys : [X]) : Bool {
+      let other = ArraySet(ys, eq);
+      for (x in elements.vals()) {
+        if (not (other.has(x))) { return false };
+      };
+      for (y in ys.vals()) {
+        if (not (has(y))) { return false };
+      };
+      return true;
     };
   };
 

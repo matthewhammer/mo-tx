@@ -15,13 +15,6 @@ module {
 
     let state = State.OOState(stableState);
 
-    public func ownedNftSet(ns : [OwnedNft]) : ArraySet.ArraySet<OwnedNft> {
-      ArraySet.ArraySet(
-        ns,
-        func(n1 : OwnedNft, n2 : OwnedNft) : Bool { n1 == n2 },
-      );
-    };
-
     public func getPlan(caller : Principal, plan : Plan) : ?PlanState {
       // to do -- access control.
       state.getPlan(plan);
@@ -43,13 +36,12 @@ module {
           switch (planStates.current) {
             case (#submit(submit)) {
               let parties = ArraySet.principalSet(submit.parties);
-              if (parties.isMember(caller)) {
+              if (parties.has(caller)) {
                 // caller is already among the parties.  No change.
                 true;
               } else {
                 let newParties = parties.add(caller);
-
-                if (newParties.size() == 2 /* to do: newParties == current.parties (set operation) */) {
+                if (ArraySet.principalSet(newParties).equals(Types.PlanState.planParties(plan))) {
                   state.putPlan(plan, #resourcing { plan; parties = []; have = [] });
                   true;
                 } else {
@@ -70,13 +62,13 @@ module {
         case (?s) {
           switch (s.current) {
             case (#resourcing(resourcing)) {
-              let have = ownedNftSet(resourcing.have);
-              if (have.isMember(nft)) {
+              let have = Types.ownedNftSet(resourcing.have);
+              if (have.has(nft)) {
                 // nft is already among the nfts.  No change.
                 true;
               } else {
                 let newNfts = have.add(nft);
-                if (newNfts.size() == 2 /* to do */) {
+                if (Types.ownedNftSet(newNfts).equals(Types.PlanState.planOwnedNfts(plan))) {
                   state.putPlan(plan, #running { plan });
                   do {
                     for (send in plan.sends.vals()) {
