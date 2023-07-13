@@ -3,6 +3,7 @@ import Types "Types";
 import State "State";
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
+import ArraySet "../common/ArraySet";
 
 module {
   public type OwnedNft = Types.OwnedNft;
@@ -13,6 +14,13 @@ module {
   public class Core(installer : Principal, stableState : State.State) {
 
     let state = State.OOState(stableState);
+
+    public func ownedNftSet(ns : [OwnedNft]) : ArraySet.ArraySet<OwnedNft> {
+      ArraySet.ArraySet(
+        ns,
+        func(n1 : OwnedNft, n2 : OwnedNft) : Bool { n1 == n2 },
+      );
+    };
 
     public func getPlan(caller : Principal, plan : Plan) : ?PlanState {
       // to do -- access control.
@@ -34,11 +42,12 @@ module {
         case (?planStates) {
           switch (planStates.current) {
             case (#submit(submit)) {
-              if (Array.find(submit.parties, func(p : Principal) : Bool { p == caller }) != null) {
+              let parties = ArraySet.principalSet(submit.parties);
+              if (parties.isMember(caller)) {
                 // caller is already among the parties.  No change.
                 true;
               } else {
-                let newParties = addParty(submit.parties, caller);
+                let newParties = parties.add(caller);
 
                 if (newParties.size() == 2 /* to do: newParties == current.parties (set operation) */) {
                   state.putPlan(plan, #resourcing { plan; parties = []; have = [] });
@@ -61,11 +70,12 @@ module {
         case (?s) {
           switch (s.current) {
             case (#resourcing(resourcing)) {
-              if (Array.find(resourcing.have, func(n : OwnedNft) : Bool { n == nft }) != null) {
+              let have = ownedNftSet(resourcing.have);
+              if (have.isMember(nft)) {
                 // nft is already among the nfts.  No change.
                 true;
               } else {
-                let newNfts = addNft(resourcing.have, nft);
+                let newNfts = have.add(nft);
                 if (newNfts.size() == 2 /* to do */) {
                   state.putPlan(plan, #running { plan });
                   do {
@@ -77,7 +87,7 @@ module {
                   state.putPlan(plan, #complete { plan });
                   true;
                 } else {
-                  state.putPlan(plan, #resourcing { plan; have = addNft(resourcing.have, nft) });
+                  state.putPlan(plan, #resourcing { plan; have = have.add(nft) });
                   true;
                 };
               };
@@ -90,28 +100,6 @@ module {
 
     func collectionActor(p : Principal) : NftCollection {
       actor (Principal.toText(p));
-    };
-
-    func addParty(parties : [Principal], party : Principal) : [Principal] {
-      arrayAdd(parties, party);
-    };
-
-    func addNft(nfts : [OwnedNft], nft : OwnedNft) : [OwnedNft] {
-      arrayAdd(nfts, nft);
-    };
-
-    func arrayAdd<X>(a : [X], x : X) : [X] {
-      let size = a.size();
-      Array.tabulate<X>(
-        size + 1,
-        func i {
-          if (i < size) {
-            a[i];
-          } else {
-            x;
-          };
-        },
-      );
     };
 
   };
