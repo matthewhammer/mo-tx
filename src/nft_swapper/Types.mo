@@ -1,15 +1,12 @@
+import ArraySet "../common/ArraySet";
 import NCTypes "../nft_collection/Types";
 import Blob "mo:base/Blob";
 import Trie "mo:base/Trie";
 
 module {
 
-  // An NFT ID
-  // with a collection service
-  // where that ID makes sense.
   public type Nft = NCTypes.Nft;
 
-  // An NFT with an attached ownership assertion.
   public type OwnedNft = {
     owner : Principal;
     nft : Nft;
@@ -21,8 +18,6 @@ module {
     nft : Nft;
   };
 
-  // A plan is a sequence of two-way swaps.
-  // It is valid if run as a sequence, it is valid.
   public type Plan = {
     sends : [Send];
   };
@@ -43,10 +38,17 @@ module {
     p1 == p2;
   };
 
+  public func ownedNftSet(ns : [OwnedNft]) : ArraySet.ArraySet<OwnedNft> {
+    ArraySet.ArraySet(
+      ns,
+      func(n1 : OwnedNft, n2 : OwnedNft) : Bool { n1 == n2 },
+    );
+  };
+
   // States of a "flow" through
   // the Swapper multi-canister protocol.
   public module PlanState {
-    // 1. One or more parties
+    // One or more parties
     // have submitted a plan.
     public type Submit = {
       plan : Plan;
@@ -99,6 +101,30 @@ module {
     public type PlanStates = {
       past : [PlanState];
       current : PlanState;
+    };
+
+    public func planParties(plan : Plan) : [Principal] {
+      var parties = ArraySet.principalSet([]);
+      for (send in plan.sends.vals()) {
+        if (not (parties.has(send.source))) {
+          parties := ArraySet.principalSet(parties.add(send.source));
+        };
+        if (not (parties.has(send.target))) {
+          parties := ArraySet.principalSet(parties.add(send.source));
+        };
+      };
+      parties.array();
+    };
+
+    public func planOwnedNfts(plan : Plan) : [OwnedNft] {
+      var nfts = ownedNftSet([]);
+      for (send in plan.sends.vals()) {
+        let n = { owner = send.source; nft = send.nft };
+        if (not (nfts.has(n))) {
+          nfts := ownedNftSet(nfts.add(n));
+        };
+      };
+      nfts.array();
     };
 
     public func planIsBeingSubmitted(ps : ?PlanStates) : Bool {

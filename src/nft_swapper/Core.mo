@@ -3,6 +3,7 @@ import Types "Types";
 import State "State";
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
+import ArraySet "../common/ArraySet";
 
 module {
   public type OwnedNft = Types.OwnedNft;
@@ -34,13 +35,13 @@ module {
         case (?planStates) {
           switch (planStates.current) {
             case (#submit(submit)) {
-              if (Array.find(submit.parties, func(p : Principal) : Bool { p == caller }) != null) {
+              let parties = ArraySet.principalSet(submit.parties);
+              if (parties.has(caller)) {
                 // caller is already among the parties.  No change.
                 true;
               } else {
-                let newParties = addParty(submit.parties, caller);
-
-                if (newParties.size() == 2 /* to do: newParties == current.parties (set operation) */) {
+                let newParties = parties.add(caller);
+                if (ArraySet.principalSet(newParties).equals(Types.PlanState.planParties(plan))) {
                   state.putPlan(plan, #resourcing { plan; parties = []; have = [] });
                   true;
                 } else {
@@ -61,12 +62,13 @@ module {
         case (?s) {
           switch (s.current) {
             case (#resourcing(resourcing)) {
-              if (Array.find(resourcing.have, func(n : OwnedNft) : Bool { n == nft }) != null) {
+              let have = Types.ownedNftSet(resourcing.have);
+              if (have.has(nft)) {
                 // nft is already among the nfts.  No change.
                 true;
               } else {
-                let newNfts = addNft(resourcing.have, nft);
-                if (newNfts.size() == 2 /* to do */) {
+                let newNfts = have.add(nft);
+                if (Types.ownedNftSet(newNfts).equals(Types.PlanState.planOwnedNfts(plan))) {
                   state.putPlan(plan, #running { plan });
                   do {
                     for (send in plan.sends.vals()) {
@@ -77,7 +79,7 @@ module {
                   state.putPlan(plan, #complete { plan });
                   true;
                 } else {
-                  state.putPlan(plan, #resourcing { plan; have = addNft(resourcing.have, nft) });
+                  state.putPlan(plan, #resourcing { plan; have = have.add(nft) });
                   true;
                 };
               };
@@ -90,28 +92,6 @@ module {
 
     func collectionActor(p : Principal) : NftCollection {
       actor (Principal.toText(p));
-    };
-
-    func addParty(parties : [Principal], party : Principal) : [Principal] {
-      arrayAdd(parties, party);
-    };
-
-    func addNft(nfts : [OwnedNft], nft : OwnedNft) : [OwnedNft] {
-      arrayAdd(nfts, nft);
-    };
-
-    func arrayAdd<X>(a : [X], x : X) : [X] {
-      let size = a.size();
-      Array.tabulate<X>(
-        size + 1,
-        func i {
-          if (i < size) {
-            a[i];
-          } else {
-            x;
-          };
-        },
-      );
     };
 
   };
