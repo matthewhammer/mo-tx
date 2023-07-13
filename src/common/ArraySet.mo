@@ -13,6 +13,9 @@ module {
     };
 
     public func add(x : X) : [X] {
+      // to preserve set invariants (each element appears at most once),
+      // this operation only makes sense after testing isMember and getting false.
+      // we rely on the caller doing this.
       let size = elements.size();
       Array.tabulate<X>(
         size + 1,
