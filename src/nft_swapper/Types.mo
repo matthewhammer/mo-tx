@@ -5,12 +5,8 @@ import Trie "mo:base/Trie";
 
 module {
 
-  // An NFT ID
-  // with a collection service
-  // where that ID makes sense.
   public type Nft = NCTypes.Nft;
 
-  // An NFT with an attached ownership assertion.
   public type OwnedNft = {
     owner : Principal;
     nft : Nft;
@@ -22,8 +18,6 @@ module {
     nft : Nft;
   };
 
-  // A plan is a sequence of two-way swaps.
-  // It is valid if run as a sequence, it is valid.
   public type Plan = {
     sends : [Send];
   };
@@ -54,7 +48,7 @@ module {
   // States of a "flow" through
   // the Swapper multi-canister protocol.
   public module PlanState {
-    // 1. One or more parties
+    // One or more parties
     // have submitted a plan.
     public type Submit = {
       plan : Plan;
