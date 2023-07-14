@@ -16,7 +16,7 @@ module {
     let state = State.OOState(stableState);
 
     func callerMayAccessPlan(caller : Principal, plan : Plan) : Bool {
-      caller == installer or ArraySet.principalSet(Types.PlanState.planParties(plan)).has(caller);
+      caller == installer or ArraySet.principalSet(Types.planParties(plan)).has(caller);
     };
 
     public func getPlan(caller : Principal, plan : Plan) : ?PlanState {
@@ -45,7 +45,7 @@ module {
                 true;
               } else {
                 let newParties = parties.add(caller);
-                if (ArraySet.principalSet(newParties).equals(Types.PlanState.planParties(plan))) {
+                if (ArraySet.principalSet(newParties).equals(Types.planParties(plan))) {
                   state.putPlan(plan, #resourcing { plan; parties = []; have = [] });
                   true;
                 } else {
@@ -73,7 +73,7 @@ module {
                 true;
               } else {
                 let newNfts = have.add(nft);
-                if (Types.ownedNftSet(newNfts).equals(Types.PlanState.planOwnedNfts(plan))) {
+                if (Types.ownedNftSet(newNfts).equals(Types.planOwnedNfts(plan))) {
                   state.putPlan(plan, #running { plan });
                   do {
                     for (send in plan.sends.vals()) {

@@ -38,6 +38,30 @@ module {
     p1 == p2;
   };
 
+  public func planParties(plan : Plan) : [Principal] {
+    var parties = ArraySet.principalSet([]);
+    for (send in plan.sends.vals()) {
+      if (not (parties.has(send.source))) {
+        parties := ArraySet.principalSet(parties.add(send.source));
+      };
+      if (not (parties.has(send.target))) {
+        parties := ArraySet.principalSet(parties.add(send.target));
+      };
+    };
+    parties.array();
+  };
+
+  public func planOwnedNfts(plan : Plan) : [OwnedNft] {
+    var nfts = ownedNftSet([]);
+    for (send in plan.sends.vals()) {
+      let n = { owner = send.source; nft = send.nft };
+      if (not (nfts.has(n))) {
+        nfts := ownedNftSet(nfts.add(n));
+      };
+    };
+    nfts.array();
+  };
+
   public func ownedNftSet(ns : [OwnedNft]) : ArraySet.ArraySet<OwnedNft> {
     ArraySet.ArraySet(
       ns,
@@ -102,30 +126,6 @@ module {
     public type PlanStates = {
       past : [PlanState];
       current : PlanState;
-    };
-
-    public func planParties(plan : Plan) : [Principal] {
-      var parties = ArraySet.principalSet([]);
-      for (send in plan.sends.vals()) {
-        if (not (parties.has(send.source))) {
-          parties := ArraySet.principalSet(parties.add(send.source));
-        };
-        if (not (parties.has(send.target))) {
-          parties := ArraySet.principalSet(parties.add(send.target));
-        };
-      };
-      parties.array();
-    };
-
-    public func planOwnedNfts(plan : Plan) : [OwnedNft] {
-      var nfts = ownedNftSet([]);
-      for (send in plan.sends.vals()) {
-        let n = { owner = send.source; nft = send.nft };
-        if (not (nfts.has(n))) {
-          nfts := ownedNftSet(nfts.add(n));
-        };
-      };
-      nfts.array();
     };
 
     public func planIsBeingSubmitted(ps : ?PlanStates) : Bool {
