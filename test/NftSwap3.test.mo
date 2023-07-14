@@ -22,7 +22,7 @@ let c3 = await NftCollection();
 
 assert await c1.create(#nft "ape42", alice);
 assert await c2.create(#nft "baboon13", bob);
-assert await c3.create(#nft "alien51", bob);
+assert await c3.create(#nft "alien51", chuck);
 
 let n1 = { id = #nft "ape42"; collection = Principal.fromActor(c1) };
 let on1 = { owner = alice; nft = n1 };
@@ -59,7 +59,7 @@ let thePlan = {
 
 let alicesPart = async {
   // Alice does this stuff:
-  assert swapper.submitPlan(alice, thePlan);
+  assert await swapper.submitPlan(alice, thePlan);
 
   // wait until plan is resourcing.
   while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
@@ -75,7 +75,7 @@ let alicesPart = async {
 
 let bobsPart = async {
   // Bob does this stuff:
-  assert swapper.submitPlan(bob, thePlan);
+  assert await swapper.submitPlan(bob, thePlan);
 
   // wait until plan is resourcing.
   while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
@@ -91,7 +91,7 @@ let bobsPart = async {
 
 let chucksPart = async {
   // Chuck does this stuff:
-  assert swapper.submitPlan(chuck, thePlan);
+  assert await swapper.submitPlan(chuck, thePlan);
 
   // wait until plan is resourcing.
   while (planIsBeingSubmitted(swapper.getPlan(chuck, thePlan))) {

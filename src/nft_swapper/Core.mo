@@ -23,18 +23,37 @@ module {
       if (not callerMayAccessPlan(caller, plan)) null else state.getPlan(plan);
     };
 
-    public func refundOwnedNft(n : OwnedNft) : async () {
+    func refundOwnedNft(n : OwnedNft) : async () {
       assert (await collectionActor(n.nft.collection).send(n.nft.id, n.owner));
     };
 
-    public func refundOwnedNfts(nfts : [OwnedNft]) : async () {
+    func refundOwnedNfts(nfts : [OwnedNft]) : async () {
       for (n in nfts.vals()) {
         await refundOwnedNft(n);
       };
     };
 
-    public func submitPlan(caller : Principal, plan : Plan) : Bool {
+    func checkPlanSubmit(plan : Plan) : async Bool {
+      for (send in plan.sends.vals()) {
+        let actualOwner = await collectionActor(send.nft.collection).getOwner(send.nft.id);
+        if (actualOwner != ?send.source) {
+          return false;
+        };
+      };
+      true;
+    };
+
+    public func submitPlan(caller : Principal, plan : Plan) : async Bool {
       if (not callerMayAccessPlan(caller, plan)) { return false };
+      if (not (await checkPlanSubmit(plan))) {
+        state.putPlan(
+          plan,
+          #invalidSubmit {
+            parties = [caller];
+          },
+        );
+        return false;
+      };
       switch (state.getPlan(plan)) {
         case null {
           state.putPlan(

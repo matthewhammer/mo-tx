@@ -44,7 +44,7 @@ let thePlan = {
 };
 
 let alicesPart = async {
-  assert swapper.submitPlan(alice, thePlan);
+  assert await swapper.submitPlan(alice, thePlan);
   while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
     await async {};
   };
@@ -67,7 +67,7 @@ let alicesPart = async {
 };
 
 let bobsPart = async {
-  assert swapper.submitPlan(bob, thePlan);
+  assert await swapper.submitPlan(bob, thePlan);
   while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
     await async {};
   };
