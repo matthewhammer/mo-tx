@@ -15,12 +15,16 @@ module {
 
     let state = State.OOState(stableState);
 
+    func callerMayAccessPlan(caller : Principal, plan : Plan) : Bool {
+      caller == installer or ArraySet.principalSet(Types.PlanState.planParties(plan)).has(caller);
+    };
+
     public func getPlan(caller : Principal, plan : Plan) : ?PlanState {
-      // to do -- access control.
-      state.getPlan(plan);
+      if (not callerMayAccessPlan(caller, plan)) null else state.getPlan(plan);
     };
 
     public func submitPlan(caller : Principal, plan : Plan) : Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null {
           state.putPlan(
@@ -57,6 +61,7 @@ module {
     };
 
     public func notifyPlan(caller : Principal, plan : Plan, nft : OwnedNft) : async Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null { false };
         case (?s) {
@@ -91,6 +96,7 @@ module {
     };
 
     public func cancelPlan(caller : Principal, plan : Plan) : async Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null { false };
         case (?s) {
