@@ -90,6 +90,26 @@ module {
       };
     };
 
+    public func cancelPlan(caller : Principal, plan : Plan) : async Bool {
+      switch (state.getPlan(plan)) {
+        case null { false };
+        case (?s) {
+          switch (s.current) {
+            case (#cancelled(_)) { /* already canceled */ true };
+            case (#submit(submit)) {
+              state.putPlan(plan, #cancelled { plan; by = caller; have = [] });
+              true;
+            };
+            case (#resourcing(resourcing)) {
+              state.putPlan(plan, #cancelled { plan; by = caller; have = resourcing.have });
+              true;
+            };
+            case _ { false };
+          };
+        };
+      };
+    };
+
     func collectionActor(p : Principal) : NftCollection {
       actor (Principal.toText(p));
     };

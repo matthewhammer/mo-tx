@@ -65,12 +65,13 @@ module {
 
     public type Resourcing = {
       plan : Plan;
-      have : [OwnedNft]; // <-- Save old owner here for a bit, in case we need to roll back.
+      have : [OwnedNft]; // <- Save old owner for refunds.
     };
 
     public type Cancelled = {
       plan : Plan;
       by : Principal;
+      have : [OwnedNft]; // <- For refunds.
     };
 
     public type Running = {
