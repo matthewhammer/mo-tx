@@ -47,7 +47,6 @@ let alicesPart = async {
   assert swapper.submitPlan(alice, thePlan);
 };
 
-
 let bobsPart = async {
   assert (await swapper.cancelPlan(bob, thePlan));
 };
@@ -55,9 +54,11 @@ let bobsPart = async {
 await alicesPart;
 await bobsPart;
 
-let p = swapper.getPlan(swapperPrincipal, thePlan);
-
-// to do --assert that plan p is #complete
+let ?p = swapper.getPlan(swapperPrincipal, thePlan) else {
+  assert false;
+  loop {};
+};
+assert (switch (p.current) { case (#cancelled(_)) true; case _ false });
 
 assert (await c1.getOwner(#nft "ape42")) == ?alice;
 assert (await c2.getOwner(#nft "baboon13")) == ?bob;

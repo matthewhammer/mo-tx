@@ -48,6 +48,20 @@ let alicesPart = async {
   while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
     await async {};
   };
+  if (not planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
+
+  // Artificial delay, to encourage a race with Bob cancelling.
+  await async {};
+  await async {};
+  await async {};
+  await async {};
+  await async {};
+  await async {};
+
+  // Ensure test coverage:
+  // we are now going to resource a non-resourcing plan:
+  if (planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
+
   assert (await c1.installerSend(#nft "ape42", swapperPrincipal));
   assert (await swapper.notifyPlan(alice, thePlan, on1));
 };
@@ -57,18 +71,17 @@ let bobsPart = async {
   while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
     await async {};
   };
-  while ((await c1.getOwner(#nft "ape42")) == ?alice) {
-    await async {};
-  };
   assert (await swapper.cancelPlan(bob, thePlan));
 };
 
 await alicesPart;
 await bobsPart;
 
-let p = swapper.getPlan(swapperPrincipal, thePlan);
-
-// to do --assert that plan p is #complete
+let ?p = swapper.getPlan(swapperPrincipal, thePlan) else {
+  assert false;
+  loop {};
+};
+assert (switch (p.current) { case (#cancelled(_)) true; case _ false });
 
 assert (await c1.getOwner(#nft "ape42")) == ?alice;
 assert (await c2.getOwner(#nft "baboon13")) == ?bob;
