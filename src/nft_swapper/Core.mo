@@ -33,7 +33,7 @@ module {
       };
     };
 
-    func checkPlanSubmit(plan : Plan) : async Bool {
+    func checkPlanIsValidNow(plan : Plan) : async Bool {
       for (send in plan.sends.vals()) {
         let actualOwner = await collectionActor(send.nft.collection).getOwner(send.nft.id);
         if (actualOwner != ?send.source) {
@@ -43,9 +43,8 @@ module {
       true;
     };
 
-    public func submitPlan(caller : Principal, plan : Plan) : async Bool {
-      if (not callerMayAccessPlan(caller, plan)) { return false };
-      if (not (await checkPlanSubmit(plan))) {
+    func submitCheck(caller : Principal, plan : Plan) : async Bool {
+      if (not (await checkPlanIsValidNow(plan))) {
         state.putPlan(
           plan,
           #invalidSubmit {
@@ -54,6 +53,11 @@ module {
         );
         return false;
       };
+      true;
+    };
+
+    public func submitPlan(caller : Principal, plan : Plan) : async Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null {
           state.putPlan(
@@ -63,11 +67,13 @@ module {
               parties = [caller];
             },
           );
+          // if (not (await submitCheck(caller, plan))) { return false };
           true;
         };
         case (?planStates) {
           switch (planStates.current) {
             case (#submit(submit)) {
+              // if (not (await submitCheck(caller, plan))) { return false };
               let parties = ArraySet.principalSet(submit.parties);
               if (parties.has(caller)) {
                 // caller is already among the parties.  No change.
