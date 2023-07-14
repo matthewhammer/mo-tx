@@ -23,9 +23,13 @@ module {
       if (not callerMayAccessPlan(caller, plan)) null else state.getPlan(plan);
     };
 
+    public func refundOwnedNft(n : OwnedNft) : async () {
+      assert (await collectionActor(n.nft.collection).send(n.nft.id, n.owner));
+    };
+
     public func refundOwnedNfts(nfts : [OwnedNft]) : async () {
       for (n in nfts.vals()) {
-        assert (await collectionActor(n.nft.collection).send(n.nft.id, n.owner));
+        await refundOwnedNft(n);
       };
     };
 
@@ -72,6 +76,13 @@ module {
         case null { false };
         case (?s) {
           switch (s.current) {
+            case (#cancelled(cancelled)) {
+              if (caller == nft.owner) {
+                await refundOwnedNft(nft);
+                true;
+              } else false;
+            };
+
             case (#resourcing(resourcing)) {
               let have = Types.ownedNftSet(resourcing.have);
               if (have.has(nft)) {
