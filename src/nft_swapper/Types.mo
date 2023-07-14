@@ -111,7 +111,7 @@ module {
           parties := ArraySet.principalSet(parties.add(send.source));
         };
         if (not (parties.has(send.target))) {
-          parties := ArraySet.principalSet(parties.add(send.source));
+          parties := ArraySet.principalSet(parties.add(send.target));
         };
       };
       parties.array();
