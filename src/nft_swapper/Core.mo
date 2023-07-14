@@ -15,12 +15,26 @@ module {
 
     let state = State.OOState(stableState);
 
+    func callerMayAccessPlan(caller : Principal, plan : Plan) : Bool {
+      caller == installer or ArraySet.principalSet(Types.planParties(plan)).has(caller);
+    };
+
     public func getPlan(caller : Principal, plan : Plan) : ?PlanState {
-      // to do -- access control.
-      state.getPlan(plan);
+      if (not callerMayAccessPlan(caller, plan)) null else state.getPlan(plan);
+    };
+
+    public func refundOwnedNft(n : OwnedNft) : async () {
+      assert (await collectionActor(n.nft.collection).send(n.nft.id, n.owner));
+    };
+
+    public func refundOwnedNfts(nfts : [OwnedNft]) : async () {
+      for (n in nfts.vals()) {
+        await refundOwnedNft(n);
+      };
     };
 
     public func submitPlan(caller : Principal, plan : Plan) : Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null {
           state.putPlan(
@@ -41,7 +55,7 @@ module {
                 true;
               } else {
                 let newParties = parties.add(caller);
-                if (ArraySet.principalSet(newParties).equals(Types.PlanState.planParties(plan))) {
+                if (ArraySet.principalSet(newParties).equals(Types.planParties(plan))) {
                   state.putPlan(plan, #resourcing { plan; parties = []; have = [] });
                   true;
                 } else {
@@ -57,10 +71,18 @@ module {
     };
 
     public func notifyPlan(caller : Principal, plan : Plan, nft : OwnedNft) : async Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null { false };
         case (?s) {
           switch (s.current) {
+            case (#cancelled(cancelled)) {
+              if (caller == nft.owner) {
+                await refundOwnedNft(nft);
+                true;
+              } else false;
+            };
+
             case (#resourcing(resourcing)) {
               let have = Types.ownedNftSet(resourcing.have);
               if (have.has(nft)) {
@@ -68,7 +90,7 @@ module {
                 true;
               } else {
                 let newNfts = have.add(nft);
-                if (Types.ownedNftSet(newNfts).equals(Types.PlanState.planOwnedNfts(plan))) {
+                if (Types.ownedNftSet(newNfts).equals(Types.planOwnedNfts(plan))) {
                   state.putPlan(plan, #running { plan });
                   do {
                     for (send in plan.sends.vals()) {
@@ -83,6 +105,28 @@ module {
                   true;
                 };
               };
+            };
+            case _ { false };
+          };
+        };
+      };
+    };
+
+    public func cancelPlan(caller : Principal, plan : Plan) : async Bool {
+      if (not callerMayAccessPlan(caller, plan)) { return false };
+      switch (state.getPlan(plan)) {
+        case null { false };
+        case (?s) {
+          switch (s.current) {
+            case (#cancelled(_)) { /* already canceled */ true };
+            case (#submit(submit)) {
+              state.putPlan(plan, #cancelled { plan; by = caller; refunded = [] });
+              true;
+            };
+            case (#resourcing(resourcing)) {
+              await refundOwnedNfts(resourcing.have);
+              state.putPlan(plan, #cancelled { plan; by = caller; refunded = resourcing.have });
+              true;
             };
             case _ { false };
           };
