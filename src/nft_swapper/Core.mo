@@ -23,6 +23,12 @@ module {
       if (not callerMayAccessPlan(caller, plan)) null else state.getPlan(plan);
     };
 
+    public func refundOwnedNfts(nfts : [OwnedNft]) : async () {
+      for (n in nfts.vals()) {
+        assert (await collectionActor(n.nft.collection).send(n.nft.id, n.owner));
+      };
+    };
+
     public func submitPlan(caller : Principal, plan : Plan) : Bool {
       if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
@@ -103,11 +109,12 @@ module {
           switch (s.current) {
             case (#cancelled(_)) { /* already canceled */ true };
             case (#submit(submit)) {
-              state.putPlan(plan, #cancelled { plan; by = caller; have = [] });
+              state.putPlan(plan, #cancelled { plan; by = caller; refunded = [] });
               true;
             };
             case (#resourcing(resourcing)) {
-              state.putPlan(plan, #cancelled { plan; by = caller; have = resourcing.have });
+              await refundOwnedNfts(resourcing.have);
+              state.putPlan(plan, #cancelled { plan; by = caller; refunded = resourcing.have });
               true;
             };
             case _ { false };

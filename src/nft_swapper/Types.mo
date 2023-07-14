@@ -95,7 +95,7 @@ module {
     public type Cancelled = {
       plan : Plan;
       by : Principal;
-      have : [OwnedNft]; // <- For refunds.
+      refunded : [OwnedNft];
     };
 
     public type Running = {
