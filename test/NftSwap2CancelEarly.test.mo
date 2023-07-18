@@ -44,10 +44,13 @@ let thePlan = {
 };
 
 let alicesPart = async {
-  assert swapper.submitPlan(alice, thePlan);
+  assert await swapper.submitPlan(alice, thePlan);
 };
 
 let bobsPart = async {
+  while (swapper.getPlan(swapperPrincipal, thePlan) == null) {
+    await async {};
+  };
   assert (await swapper.cancelPlan(bob, thePlan));
 };
 

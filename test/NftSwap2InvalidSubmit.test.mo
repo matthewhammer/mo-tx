@@ -21,7 +21,7 @@ assert await c1.create(#nft "ape42", alice);
 assert await c2.create(#nft "baboon13", bob);
 
 let n1 = { id = #nft "ape42"; collection = Principal.fromActor(c1) };
-let on1 = { owner = alice; nft = n1 };
+let on1 = { owner = bob; nft = n1 };
 
 let n2 = { id = #nft "baboon13"; collection = Principal.fromActor(c2) };
 let on2 = { owner = bob; nft = n2 };
@@ -31,9 +31,9 @@ let swapper = NftSwapper.Core(installer, State.init(installer));
 let thePlan = {
   sends = [
     {
-      source = alice;
+      source = bob;
       nft = n1;
-      target = bob;
+      target = alice;
     },
     {
       source = bob;
@@ -43,45 +43,13 @@ let thePlan = {
   ];
 };
 
-let alicesPart = async {
-  assert await swapper.submitPlan(alice, thePlan);
-  while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
-    await async {};
-  };
-  if (not planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
-
-  // Artificial delay, to encourage a race with Bob cancelling.
-  await async {};
-  await async {};
-  await async {};
-  await async {};
-  await async {};
-  await async {};
-
-  // Ensure test coverage:
-  // we are now going to resource a non-resourcing plan:
-  if (planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
-
-  assert (await c1.installerSend(#nft "ape42", swapperPrincipal));
-  assert (await swapper.notifyPlan(alice, thePlan, on1));
-};
-
-let bobsPart = async {
-  assert await swapper.submitPlan(bob, thePlan);
-  while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
-    await async {};
-  };
-  assert (await swapper.cancelPlan(bob, thePlan));
-};
-
-await alicesPart;
-await bobsPart;
+assert not (await swapper.submitPlan(alice, thePlan));
 
 let ?p = swapper.getPlan(swapperPrincipal, thePlan) else {
   assert false;
   loop {};
 };
-assert (switch (p.current) { case (#cancelled(_)) true; case _ false });
+assert (switch (p.current) { case (#invalidSubmit(_)) true; case _ false });
 
 assert (await c1.getOwner(#nft "ape42")) == ?alice;
 assert (await c2.getOwner(#nft "baboon13")) == ?bob;

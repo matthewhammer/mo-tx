@@ -72,24 +72,25 @@ module {
   // States of a "flow" through
   // the Swapper multi-canister protocol.
   public module PlanState {
-    // One or more parties
-    // have submitted a plan.
+
     public type Submit = {
       plan : Plan;
       parties : [Principal];
     };
 
-    // If a single Plan is invalid, for any submission of it, by anyone.
-    public type Invalid = {
+    public type InvalidSubmit = {
       parties : [Principal];
-      plan : Plan;
-      // "NFT blah is not owned by who the plan claims in step 5".
-      reason : Text;
     };
 
     public type Resourcing = {
       plan : Plan;
       have : [OwnedNft]; // <- Save old owner for refunds.
+    };
+
+    public type InvalidNotify = {
+      invalidClaim : OwnedNft;
+      by : Principal;
+      refunded : [OwnedNft];
     };
 
     public type Cancelled = {
@@ -118,7 +119,8 @@ module {
       //
       // Plan outcomes:
       //
-      #invalid : Invalid;
+      #invalidSubmit : InvalidSubmit;
+      #invalidNotify : InvalidNotify;
       #cancelled : Cancelled;
       #complete : Complete;
     };

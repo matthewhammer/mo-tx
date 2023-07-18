@@ -23,17 +23,40 @@ module {
       if (not callerMayAccessPlan(caller, plan)) null else state.getPlan(plan);
     };
 
-    public func refundOwnedNft(n : OwnedNft) : async () {
+    func refundOwnedNft(n : OwnedNft) : async () {
       assert (await collectionActor(n.nft.collection).send(n.nft.id, n.owner));
     };
 
-    public func refundOwnedNfts(nfts : [OwnedNft]) : async () {
+    func refundOwnedNfts(nfts : [OwnedNft]) : async () {
       for (n in nfts.vals()) {
         await refundOwnedNft(n);
       };
     };
 
-    public func submitPlan(caller : Principal, plan : Plan) : Bool {
+    func checkPlanIsValidNow(plan : Plan) : async Bool {
+      for (send in plan.sends.vals()) {
+        let actualOwner = await collectionActor(send.nft.collection).getOwner(send.nft.id);
+        if (actualOwner != ?send.source) {
+          return false;
+        };
+      };
+      true;
+    };
+
+    func submitCheck(caller : Principal, plan : Plan) : async Bool {
+      if (not (await checkPlanIsValidNow(plan))) {
+        state.putPlan(
+          plan,
+          #invalidSubmit {
+            parties = [caller];
+          },
+        );
+        return false;
+      };
+      true;
+    };
+
+    public func submitPlan(caller : Principal, plan : Plan) : async Bool {
       if (not callerMayAccessPlan(caller, plan)) { return false };
       switch (state.getPlan(plan)) {
         case null {
@@ -44,11 +67,13 @@ module {
               parties = [caller];
             },
           );
+          if (not (await submitCheck(caller, plan))) { return false };
           true;
         };
         case (?planStates) {
           switch (planStates.current) {
             case (#submit(submit)) {
+              if (not (await submitCheck(caller, plan))) { return false };
               let parties = ArraySet.principalSet(submit.parties);
               if (parties.has(caller)) {
                 // caller is already among the parties.  No change.

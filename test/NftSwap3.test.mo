@@ -22,7 +22,7 @@ let c3 = await NftCollection();
 
 assert await c1.create(#nft "ape42", alice);
 assert await c2.create(#nft "baboon13", bob);
-assert await c3.create(#nft "alien51", bob);
+assert await c3.create(#nft "alien51", chuck);
 
 let n1 = { id = #nft "ape42"; collection = Principal.fromActor(c1) };
 let on1 = { owner = alice; nft = n1 };
@@ -55,51 +55,41 @@ let thePlan = {
   ];
 };
 
+// Each user submits the plan
+assert await swapper.submitPlan(alice, thePlan);
+assert await swapper.submitPlan(bob, thePlan);
+assert await swapper.submitPlan(chuck, thePlan);
+
 // send resources to plan (via swapper)
 
 let alicesPart = async {
+  // verify that plan is resourcing.
+  assert not planIsBeingSubmitted(swapper.getPlan(alice, thePlan));
+  assert planIsResourcing(swapper.getPlan(alice, thePlan));
+
   // Alice does this stuff:
-  assert swapper.submitPlan(alice, thePlan);
-
-  // wait until plan is resourcing.
-  while (planIsBeingSubmitted(swapper.getPlan(alice, thePlan))) {
-    // To do -- Tell Alice things as we wait.
-    await async {}; // NB: Need this, to yeild control to other block, below.
-  };
-  if (not planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
-
   assert (await c1.installerSend(#nft "ape42", swapperPrincipal)); // to do -- alice sends.
   D.print(debug_show swapper.getPlan(alice, thePlan));
   assert (await swapper.notifyPlan(alice, thePlan, on1));
 };
 
 let bobsPart = async {
+  // verify that plan is resourcing.
+  assert not planIsBeingSubmitted(swapper.getPlan(bob, thePlan));
+  assert planIsResourcing(swapper.getPlan(bob, thePlan));
+
   // Bob does this stuff:
-  assert swapper.submitPlan(bob, thePlan);
-
-  // wait until plan is resourcing.
-  while (planIsBeingSubmitted(swapper.getPlan(bob, thePlan))) {
-    // To do -- Tell Bob things as we wait.
-    await async {};
-  };
-  if (not planIsResourcing(swapper.getPlan(alice, thePlan))) { assert false };
-
   assert (await c2.installerSend(#nft "baboon13", swapperPrincipal)); // to do -- bob sends.
   D.print(debug_show swapper.getPlan(bob, thePlan));
   assert (await swapper.notifyPlan(bob, thePlan, on2)); // plan executes here (assuming this happens after Alice).
 };
 
 let chucksPart = async {
+  // verify that plan is resourcing.
+  assert not planIsBeingSubmitted(swapper.getPlan(chuck, thePlan));
+  assert planIsResourcing(swapper.getPlan(chuck, thePlan));
+
   // Chuck does this stuff:
-  assert swapper.submitPlan(chuck, thePlan);
-
-  // wait until plan is resourcing.
-  while (planIsBeingSubmitted(swapper.getPlan(chuck, thePlan))) {
-    // To do -- Tell Bob things as we wait.
-    await async {};
-  };
-  if (not planIsResourcing(swapper.getPlan(chuck, thePlan))) { assert false };
-
   assert (await c3.installerSend(#nft "alien51", swapperPrincipal)); // to do -- bob sends.
   D.print(debug_show swapper.getPlan(chuck, thePlan));
   assert (await swapper.notifyPlan(chuck, thePlan, on3)); // plan executes here (assuming this happens after Alice).
