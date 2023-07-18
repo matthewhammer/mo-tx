@@ -67,13 +67,13 @@ module {
               parties = [caller];
             },
           );
-          // if (not (await submitCheck(caller, plan))) { return false };
+          if (not (await submitCheck(caller, plan))) { return false };
           true;
         };
         case (?planStates) {
           switch (planStates.current) {
             case (#submit(submit)) {
-              // if (not (await submitCheck(caller, plan))) { return false };
+              if (not (await submitCheck(caller, plan))) { return false };
               let parties = ArraySet.principalSet(submit.parties);
               if (parties.has(caller)) {
                 // caller is already among the parties.  No change.
